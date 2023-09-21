@@ -5,6 +5,8 @@ import './App.css';
 
 function App() {
   const [image, setImage] = useState<File | null>(null);
+  const [processedImage, setProcessedImage] = useState<string>('');
+  const [predictedLabel, setPredictedLabel] = useState<string>('');
 
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -13,41 +15,13 @@ function App() {
     }
   };
 
-
-  function convertImageToBase64(file: File): Promise<string | null> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-  
-      reader.onload = (event) => {
-        if (event.target?.result) {
-          const base64String = event.target.result as string;
-          resolve(base64String);
-        } else {
-          reject('Error reading image file');
-        }
-      };
-  
-      reader.onerror = (event) => {
-        reject('Error reading image file');
-      };
-  
-      reader.readAsDataURL(file);
-    });
-  }
-
   const submitForm = async (event: React.FormEvent) => {
     // Preventing the page from reloading
     event.preventDefault();
     if (image){
       let form_data = new FormData();
-      console.log(image);
-      for (var p of form_data) {
-        console.log(p);
-      }
-      //let i = convertImageToBase64(image);
       form_data.append('image', image);
-      form_data.append('name', 'test')
-      console.log(image);
+      form_data.append('name', image.name)
       for (var p of form_data) {
         console.log(p);
       }
@@ -58,6 +32,13 @@ function App() {
           'Content-Type':'multipart/form-data',
         },
       });
+      if (response.status === 200){
+        setProcessedImage(response.data.image);
+        setPredictedLabel(response.data.message);
+      }
+      else {
+        console.log('shiiiit')
+      }
           console.log('lets go');
         }
           catch(error){
@@ -67,6 +48,7 @@ function App() {
   };
 
   return (
+    <>
     <div className="container">
       <form onSubmit={submitForm}>
         <input
@@ -78,7 +60,16 @@ function App() {
         <button type="submit" className="btn">Submit</button>
       </form>
     </div>
-  );
+    {processedImage && predictedLabel && (
+      <div>
+        <p>Processed Image:</p>
+        <img src={processedImage}/>
+        <p>{predictedLabel}</p>
+      </div>
+   )}
+    
+    </>
+    );
 };
 
 export default App;
