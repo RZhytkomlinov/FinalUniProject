@@ -28,7 +28,6 @@ class ImageView(APIView):
                 #print(processed_image)
                 #print(processed_image)
             return Response({'message':'your predicted label gonna be here','image':image_url},status=200)
-            print('lets fucking go')
 
 
 
